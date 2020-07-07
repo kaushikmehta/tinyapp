@@ -13,7 +13,7 @@ const urlDatabase = {
 };
 
 function generateRandomString() {
-  const shortString = Math.random().toString().substring(6);
+  const shortString = Math.random().toString().substring(2, 8);
   return shortString;
 }
 
@@ -44,6 +44,9 @@ app.get("/urls/:shortURL", (req, res) => {
 
 
 app.post("/urls", (req, res) => {
+  const shortString = generateRandomString();
+  urlDatabase[shortString] = req.body.longURL;
+  console.log(urlDatabase);
   console.log(req.body);  // Log the POST request body to the console
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
