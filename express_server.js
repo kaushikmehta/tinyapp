@@ -47,12 +47,16 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+app.get('*', function(req, res){
+  res.send("404 - Page not found. Try Again with a different page", 404);
+});
+
 app.post("/urls", (req, res) => {
   const shortString = generateRandomString();
   urlDatabase[shortString] = req.body.longURL;
   console.log(urlDatabase);
   console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  res.redirect(req.body.longURL);;         // Respond with 'Ok' (we will replace this)
 });
 
 app.listen(PORT, () => {
