@@ -145,9 +145,14 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  let userID = req.cookies["user_id"]
+  if (userID === urlDatabase[req.params.shortURL].userIDforLink) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect('/urls');
+  } else {
+    res.end("You are not authorized to delete this link\n");
+  }
   console.log(urlDatabase);
-  res.redirect('/urls');
 });
 
 app.post("/urls/:shortURL", (req, res) => {
@@ -204,11 +209,14 @@ app.post("/register", (req, res) => {
 
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id');
-
+  let userID = req.cookies["user_id"];
+  
   for (let urls in urlDatabase) {
-    delete urlDatabase[urls];
+    if(urls.userIDforLink === userID){
+      delete urlDatabase[urls];
+    }
   }
+  res.clearCookie('user_id');
   res.redirect("/urls");
 });
 
