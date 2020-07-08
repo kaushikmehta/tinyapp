@@ -12,15 +12,16 @@ const PORT = 8080;
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "userRandomID" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" }
+  
 };
 
 const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: "purple"
   },
   "user2RandomID": {
     id: "user2RandomID",
@@ -73,7 +74,6 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
-    // username: req.cookies["username"],
     userID: req.cookies["user_id"],
     users: users,
     page: req.url
@@ -83,19 +83,21 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-    // username: req.cookies["username"],
     userID: req.cookies["user_id"],
     users: users,
     page: req.url
   }
-  res.render("urls_new", templateVars);
+  if (templateVars.userID === undefined) {
+    res.render('/login', { flash: req.flash("You are being redirected to login. Please login first") });
+  } else {
+    res.render("urls_new", templateVars);
+  }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    // username: req.cookies["username"],
     userID: req.cookies["user_id"],
     users: users,
     page: req.url
@@ -159,42 +161,42 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
   const checkUser = findUser(email);
 
-  if (email === "" || password === ""){
+  if (email === "" || password === "") {
     res.send(400, "Bad Request. You tried to submit a blank email or password, please fill in these fields and try again.");
-  } 
+  }
 
   if (checkUser) {
     const emailPasswordCheck = validatePassword(checkUser, email, password);
-    
-    if (emailPasswordCheck){
-    res.cookie("user_id", checkUser.id);
-    res.redirect("/urls");
+
+    if (emailPasswordCheck) {
+      res.cookie("user_id", checkUser.id);
+      res.redirect("/urls");
     } else {
-      res.send(400, "Bad Request. Your password does not match what we have, please try again.");
+      res.send(403, "Bad Request. Your password does not match what we have, please try again.");
     }
   } else {
-    res.send(400, "Bad Request. This email doesn't exist in the database, please try again with a different email.");
+    res.send(403, "Bad Request. This email doesn't exist in the database, please try again with a different email.");
   }
-  
+
 });
 
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  
+
   const checkUserExists = findUser(email);
   let newUser = "not yet regd";
 
-  if (email === "" || password === ""){
-    res.send("Bad Request. You tried to submit a blank email or password, please fill in these fields and try again.", 400);
-  } 
+  if (email === "" || password === "") {
+    res.send(400, "Bad Request. You tried to submit a blank email or password, please fill in these fields and try again.");
+  }
 
   if (checkUserExists) {
-    res.send("Bad Request. A user with this email already exists, please try again with a different email", 400);
+    res.send(400, "Bad Request. A user with this email already exists, please try again with a different email");
   } else {
     newUser = registerNewUser(email, password);
   }
-  
+
   res.cookie("user_id", newUser.id);
 
   res.redirect("/urls");
