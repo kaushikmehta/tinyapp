@@ -23,9 +23,11 @@
         <button type="submit" class="btn btn-primary">Login</button>
       </div>
     </form>
+    <% if (page.indexOf("register") === -1) { %>
     <form class="form-inline" method="GET" action="/register">
       <button type="submit" class="btn btn-info btn-lg">Register</button>
     </form>
+    <% } %>
     <%} else { %>
     <form class="form-inline" method="POST" action="/logout">
       <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label>
