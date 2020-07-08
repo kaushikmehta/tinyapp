@@ -137,10 +137,11 @@ app.get('*', function (req, res) {
 
 app.post("/urls", (req, res) => {
   const shortString = generateRandomString();
-  urlDatabase[shortString] = req.body.longURL;
+  urlDatabase[shortString] = {};
+  urlDatabase[shortString].longURL = req.body.longURL;
+  urlDatabase[shortString].userIDforLink = req.cookies["user_id"];
   console.log(urlDatabase);
-  console.log(req.body);  // Log the POST request body to the console
-  res.redirect(req.body.longURL);
+  res.redirect(`/urls/${shortString}`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
