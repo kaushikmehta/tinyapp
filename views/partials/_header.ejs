@@ -12,14 +12,13 @@
       </div>
     </div>
     <% if (userID === undefined) { %>
-    <form class="form-inline" method="POST" action="/login">
-      <!-- <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label> -->
+    <form class="form-inline" method="GET" action="/login">
       <div class="input-group mr-sm-2">
         <div class="input-group-prepend">
           <div class="input-group-text">@</div>
         </div>
         <input name="username" type="text" class="form-control" id="inlineFormInputGroupUsername2"
-          placeholder="Username">
+          placeholder="Email">
         <button type="submit" class="btn btn-primary">Login</button>
       </div>
     </form>
@@ -30,7 +29,6 @@
     <% } %>
     <%} else { %>
     <form class="form-inline" method="POST" action="/logout">
-      <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label>
       <div class="input-group mr-sm-20">
         <div class="input-group-prepend">
           <div class="input-group-text">Logged In As: <%= users[userID].email%></div>
