@@ -1,7 +1,8 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
@@ -17,27 +18,32 @@
         <div class="input-group-prepend">
           <div class="input-group-text">@</div>
         </div>
-        <input name="username" type="text" class="form-control" id="inlineFormInputGroupUsername2" placeholder="Username">
+        <input name="username" type="text" class="form-control" id="inlineFormInputGroupUsername2"
+          placeholder="Username">
         <button type="submit" class="btn btn-primary">Login</button>
       </div>
-      <%} else { %>
-        <form class="form-inline" method="POST" action="/logout">
-          <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label>
-          <div class="input-group mr-sm-20">
-            <div class="input-group-prepend col-sm-8">
-              <div class="input-group-text">Logged In As: <%= username %></div>
-            </div>
-            <button type="submit" class="btn btn-danger">Logout</button>
-          </div>
-          <% } %>
-    
+    </form>
+    <form class="form-inline" method="POST" action="/register">
+      <button type="submit" class="btn btn-info btn-lg">Register</button>
+    </form>
+    <%} else { %>
+    <form class="form-inline" method="POST" action="/logout">
+      <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label>
+      <div class="input-group mr-sm-20">
+        <div class="input-group-prepend col-sm-8">
+          <div class="input-group-text">Logged In As: <%= username %></div>
+        </div>
+        <button type="submit" class="btn btn-danger">Logout</button>
+      </div>
+      <% } %>
+
       <!-- <div class="form-check mb-2 mr-sm-2">
         <input class="form-check-input" type="checkbox" id="inlineFormCheck">
         <label class="form-check-label" for="inlineFormCheck">
           Remember me
         </label>
       </div> -->
-    
+
     </form>
 
   </nav>
