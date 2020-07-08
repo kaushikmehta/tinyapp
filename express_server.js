@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
 const bodyParser = require("body-parser");
+const e = require("express");
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const PORT = 8080;
@@ -33,13 +34,13 @@ function generateRandomString() {
   return Math.random().toString(36).substring(2, 8);
 }
 
-const findUser = (email, password) => {
+const findUser = emailID => {
   for (const userID in users) {
-    if (userID.email === email) {
-      return user;
+    if (users[userID].email === emailID) {
+      return users[userID];
     }
   }
-  return registerNewUser(email, password);
+  return false;
 }
 
 const registerNewUser = (email, password) => {
@@ -145,10 +146,23 @@ app.post("/login", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  
+  const checkUserExists = findUser(email);
+  let newUser = "not yet regd";
 
-  const user = findUser(email, password);
+  if (email === "" || password === ""){
+    res.send("Bad Request. You tried to submit a blank email or password, please fill in these fields and try again.", 400);
+  } 
 
-  res.cookie("user_id", user.id);
+  if (checkUserExists) {
+    res.send("Bad Request. A user with this email already exists, please try again with a different email", 400);
+  } else {
+    newUser = registerNewUser(email, password);
+  }
+  console.log("NEW U:", newUser, "CHECK U", checkUserExists);
+  
+  res.cookie("user_id", newUser.id);
+
   res.redirect("/urls");
 });
 
