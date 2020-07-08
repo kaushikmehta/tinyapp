@@ -48,7 +48,14 @@ const registerNewUser = (email, password) => {
   const id = newUserID
   users[newUserID] = { id, email, password };
   return users[newUserID];
+}
 
+// validatePassword(checkUserExists, email, password);
+const validatePassword = (userObj, email, passwordToCheck) => {
+  if (userObj.email === email && userObj.password === passwordToCheck) {
+    return true;
+  }
+  return false;
 }
 
 app.get("/", (req, res) => {
@@ -102,17 +109,25 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  let user;
   let page = req.url;
-  // req.cookie === undefined ? user = undefined : user = req.cookie["username"];
   let templateVars = {
     urls: urlDatabase,
-    //  username: user,
     userID: req.cookies["user_id"],
     users: users,
     page: page
   };
   res.render("register", templateVars);
+});
+
+app.get("/login", (req, res) => {
+  let page = req.url;
+  let templateVars = {
+    urls: urlDatabase,
+    userID: req.cookies["user_id"],
+    users: users,
+    page: page
+  };
+  res.render("login", templateVars);
 });
 
 app.get('*', function (req, res) {
@@ -140,7 +155,27 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.redirect("/urls");
+  const email = req.body.email;
+  const password = req.body.password;
+  const checkUser = findUser(email);
+
+  if (email === "" || password === ""){
+    res.send(400, "Bad Request. You tried to submit a blank email or password, please fill in these fields and try again.");
+  } 
+
+  if (checkUser) {
+    const emailPasswordCheck = validatePassword(checkUser, email, password);
+    
+    if (emailPasswordCheck){
+    res.cookie("user_id", checkUser.id);
+    res.redirect("/urls");
+    } else {
+      res.send(400, "Bad Request. Your password does not match what we have, please try again.");
+    }
+  } else {
+    res.send(400, "Bad Request. This email doesn't exist in the database, please try again with a different email.");
+  }
+  
 });
 
 app.post("/register", (req, res) => {
@@ -159,7 +194,6 @@ app.post("/register", (req, res) => {
   } else {
     newUser = registerNewUser(email, password);
   }
-  console.log("NEW U:", newUser, "CHECK U", checkUserExists);
   
   res.cookie("user_id", newUser.id);
 
