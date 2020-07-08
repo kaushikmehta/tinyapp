@@ -19,8 +19,7 @@ const urlDatabase = {
 };
 
 function generateRandomString() {
-  const shortString = Math.random().toString().substring(2, 8);
-  return shortString;
+  return Math.random().toString(36).substring(2, 8);
 }
 
 app.get("/", (req, res) => {
