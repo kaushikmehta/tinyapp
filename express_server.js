@@ -12,9 +12,8 @@ const PORT = 8080;
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "userRandomID" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" }
-  
+  b6UTxQ: { longURL: "https://www.tsn.ca", userIDforLink: "userRandomID" },
+  i3BoGr: { longURL: "https://www.google.ca", userIDforLink: "userRandomID" }
 };
 
 const users = {
@@ -88,7 +87,7 @@ app.get("/urls/new", (req, res) => {
     page: req.url
   }
   if (templateVars.userID === undefined) {
-    res.render('/login', { flash: req.flash("You are being redirected to login. Please login first") });
+    res.render("login", templateVars);
   } else {
     res.render("urls_new", templateVars);
   }
@@ -106,7 +105,7 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
