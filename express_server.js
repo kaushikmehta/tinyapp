@@ -1,5 +1,5 @@
 const express = require("express");
-var cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = 8080;
@@ -58,7 +58,6 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
-
   res.redirect(longURL);
 });
 
@@ -93,6 +92,10 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   res.clearCookie('username');
+
+  for (let urls in urlDatabase){
+    delete urlDatabase[urls];
+  }
   res.redirect("/urls");
 });
 
@@ -100,4 +103,3 @@ app.post("/logout", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
-
