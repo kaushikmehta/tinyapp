@@ -9,8 +9,6 @@ app.use(cookieParser());
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-
-
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -60,6 +58,18 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+app.get("/register", (req, res) => {
+  let user;
+  let page = req.url;
+  req.cookie === undefined ? user = undefined : user = req.cookie["username"];
+  let templateVars = {urls: urlDatabase,
+     username: user,
+     page: page
+    };
+    console.log(templateVars);
+  res.render("register", templateVars);
+});
+
 app.get('*', function(req, res){
   res.send("404 - Page not found. Try Again with a different page", 404);
 });
@@ -88,6 +98,7 @@ app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
   res.redirect("/urls");
 });
+
 
 app.post("/logout", (req, res) => {
   res.clearCookie('username');
