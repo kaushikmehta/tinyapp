@@ -11,7 +11,7 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <% if (username === undefined) { %>
+    <% if (userID === undefined) { %>
     <form class="form-inline" method="POST" action="/login">
       <!-- <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label> -->
       <div class="input-group mr-sm-2">
@@ -32,8 +32,8 @@
     <form class="form-inline" method="POST" action="/logout">
       <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label>
       <div class="input-group mr-sm-20">
-        <div class="input-group-prepend col-sm-8">
-          <div class="input-group-text">Logged In As: <%= username %></div>
+        <div class="input-group-prepend">
+          <div class="input-group-text">Logged In As: <%= users[userID].email%></div>
         </div>
         <button type="submit" class="btn btn-danger">Logout</button>
       </div>
