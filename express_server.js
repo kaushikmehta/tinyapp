@@ -1,3 +1,4 @@
+//Defining constants required for app
 const express = require("express");
 const app = express();
 
@@ -29,11 +30,14 @@ const users = {
   }
 }
 
+// Helper Functions
 
+// generated random strings; used for new url and new user
 function generateRandomString() {
   return Math.random().toString(36).substring(2, 8);
 }
 
+// checks to see if user exists and returns the user object if found or falsy value
 const findUser = emailID => {
   for (const userID in users) {
     if (users[userID].email === emailID) {
@@ -43,6 +47,7 @@ const findUser = emailID => {
   return false;
 }
 
+// registers new user is database when called
 const registerNewUser = (email, password) => {
   const newUserID = generateRandomString();
   const id = newUserID
@@ -50,13 +55,14 @@ const registerNewUser = (email, password) => {
   return users[newUserID];
 }
 
-// validatePassword(checkUserExists, email, password);
+// validates user's email and password combination and return truthy/falsy
 const validatePassword = (userObj, email, passwordToCheck) => {
   if (userObj.email === email && userObj.password === passwordToCheck) {
     return true;
   }
   return false;
 }
+
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -70,6 +76,8 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+//route for /urls
+//renders calls urls_index page
 app.get("/urls", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
@@ -80,6 +88,9 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//route for create new url page
+//redirects to login is no user logged in
+// else renders create new url page
 app.get("/urls/new", (req, res) => {
   let templateVars = {
     userID: req.cookies["user_id"],
@@ -93,6 +104,7 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
+//individual post page for short urls
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
@@ -104,11 +116,14 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// redirect link for anyone to access through shorturl
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
+
+//route for new user registration
 app.get("/register", (req, res) => {
   let page = req.url;
   let templateVars = {
@@ -120,6 +135,8 @@ app.get("/register", (req, res) => {
   res.render("register", templateVars);
 });
 
+
+// route for login page
 app.get("/login", (req, res) => {
   let page = req.url;
   let templateVars = {
@@ -131,10 +148,13 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 });
 
+
+// all other unknown/not-found pages show 404 error
 app.get('*', function (req, res) {
   res.send("404 - Page not found. Try Again with a different page", 404);
 });
 
+// adds new short url in db with longurl and corresponding user id
 app.post("/urls", (req, res) => {
   const shortString = generateRandomString();
   urlDatabase[shortString] = {};
@@ -144,6 +164,8 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortString}`);
 });
 
+// deletes shorturl object from db if request is sent by user that created it
+//else sends unauthorized message
 app.post("/urls/:shortURL/delete", (req, res) => {
   let userID = req.cookies["user_id"]
   if (userID === urlDatabase[req.params.shortURL].userIDforLink) {
@@ -155,12 +177,14 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   console.log(urlDatabase);
 });
 
+//TO UPDATE!!!!
 app.post("/urls/:shortURL", (req, res) => {
   urlDatabase[req.params.shortURL].longURL = req.body.longURL;
   console.log(urlDatabase);
   res.redirect('/urls');
 });
 
+// Logs in user after validating they exist and their password matches db record
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -185,12 +209,14 @@ app.post("/login", (req, res) => {
 
 });
 
+
+// checks if user exists, if not creates new user;
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
   const checkUserExists = findUser(email);
-  let newUser = "not yet regd";
+  let newUser = "not yet registered";
 
   if (email === "" || password === "") {
     res.send(400, "Bad Request. You tried to submit a blank email or password, please fill in these fields and try again.");
@@ -207,20 +233,20 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-
+// clear cookies and redirects to url index page
 app.post("/logout", (req, res) => {
   let userID = req.cookies["user_id"];
   
-  for (let urls in urlDatabase) {
-    if(urls.userIDforLink === userID){
-      delete urlDatabase[urls];
-    }
-  }
+  // for (let urls in urlDatabase) {
+  //   if(urls.userIDforLink === userID){
+  //     delete urlDatabase[urls];
+  //   }
+  // }
   res.clearCookie('user_id');
   res.redirect("/urls");
 });
 
-
+//starts serves on specified port and logs message to server console.
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
