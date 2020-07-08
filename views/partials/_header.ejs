@@ -10,5 +10,35 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+    <% if (username === undefined) { %>
+    <form class="form-inline" method="POST" action="/login">
+      <!-- <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label> -->
+      <div class="input-group mr-sm-2">
+        <div class="input-group-prepend">
+          <div class="input-group-text">@</div>
+        </div>
+        <input name="username" type="text" class="form-control" id="inlineFormInputGroupUsername2" placeholder="Username">
+        <button type="submit" class="btn btn-primary">Login</button>
+      </div>
+      <%} else { %>
+        <form class="form-inline" method="POST" action="/logout">
+          <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label>
+          <div class="input-group mr-sm-20">
+            <div class="input-group-prepend col-sm-8">
+              <div class="input-group-text">Logged In As: <%= username %></div>
+            </div>
+            <button type="submit" class="btn btn-danger">Logout</button>
+          </div>
+          <% } %>
+    
+      <!-- <div class="form-check mb-2 mr-sm-2">
+        <input class="form-check-input" type="checkbox" id="inlineFormCheck">
+        <label class="form-check-label" for="inlineFormCheck">
+          Remember me
+        </label>
+      </div> -->
+    
+    </form>
+
   </nav>
 </header>
