@@ -1,14 +1,13 @@
 const express = require("express");
-const cookieParser = require('cookie-parser');
-
 const app = express();
-const PORT = 8080;
 
+const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
+const PORT = 8080;
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -23,6 +22,7 @@ function generateRandomString() {
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
+
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
@@ -101,6 +101,13 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
   res.redirect("/urls");
+});
+
+app.post("/register", (req, res) => {
+
+  console.log(req.body);
+
+  res.redirect("/register");
 });
 
 
