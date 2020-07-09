@@ -16,22 +16,25 @@
   <body>
 
     <%- include('partials/_header') %>
-
-   <h1 class="display-4 m-3"><%= error %></h1>
+    <div class="col-sm-8 offset-sm-2">
+      <img class="rounded mx-auto d-block mt-3" src="https://media1.tenor.com/images/99b84c90456d20f9c5b52c1ec4c8b49d/tenor.gif?itemid=13269925"/>
+    <h1 class="display-4 m-3 text-center"><%= error %></h1>
     <% if (showLogIn) { %>
-   <div class="col-sm-6">
+   <div class="col-sm-6 offset-sm-3">
     <form method="GET" action="/login">
       <button type="submit" class="btn btn-primary btn-block">Go to Login Page</button>
     </form>
    </div>
    <% } %>
    <% if (showCreateURL) { %>
-    <div class="col-sm-6">
+    <div class="col-sm-6 offset-sm-3">
       <form method="GET" action="/urls/new">
         <button type="submit" class="btn btn-success btn-block">Create a New Short Link</button>
       </form>
      </div>
-    <% } %> 
+    <% } %>  
+  </div>
+   
       <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
