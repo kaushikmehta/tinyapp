@@ -165,9 +165,9 @@ app.get("/urls/:shortURL", (req, res) => {
       res.render("urls_show", templateVars);
     } else { // show no url page
       let templateVars = {
-        error: "You are not logged in, please log in first.",
-        users: { userID: undefined },
-        userID: undefined,
+        error: "That Short Link does not exist, you can create one below",
+        users: users,
+        userID: req.cookies["user_id"],
         page: req.url,
         showLogIn: false,
         showCreateURL: true
@@ -176,7 +176,42 @@ app.get("/urls/:shortURL", (req, res) => {
     }
   } else { // show please log in page
     let templateVars = {
-      error: "That Short Link does not exist, you can create one below",
+      error: "You are not logged in, please log in first.",
+      users: { userID: undefined },
+      userID: undefined,
+      page: req.url,
+      showLogIn: false,
+      showCreateURL: true
+    }
+    res.render("error", templateVars);
+  }
+});
+
+// redirect link for anyone to access through shorturl
+
+app.get("/u/:shortURL", (req, res) => {
+
+  const shorturl = req.params.shortURL;
+  // if user logged in
+  if (req.cookies["user_id"] !== undefined) {
+    //if logged in but no short url
+    if (urlDatabase[shorturl] !== undefined) { // redirect to long url
+      const longURL = urlDatabase[req.params.shortURL].longURL;
+      res.redirect(longURL);
+    } else { // show no url page
+      let templateVars = {
+        error: "That Short Link does not exist, you can create one below",
+        users: users,
+        userID: req.cookies["user_id"],
+        page: req.url,
+        showLogIn: false,
+        showCreateURL: true
+      }
+      res.render("error", templateVars);
+    }
+  } else { // show please log in page
+    let templateVars = {
+      error: "You are not logged in, please log in first.",
       users: { userID: undefined },
       userID: undefined,
       page: req.url,
@@ -185,12 +220,7 @@ app.get("/urls/:shortURL", (req, res) => {
     }
     res.render("error", templateVars);
   }
-});
 
-// redirect link for anyone to access through shorturl
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
 });
 
 
