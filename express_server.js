@@ -287,7 +287,7 @@ app.get('*', function (req, res) {
 app.post("/urls", (req, res) => {
   const userID = req.session.user_id;
   if (userID !== undefined) {
-    
+
     const shortString = generateRandomString();
     urlDatabase[shortString] = {};
     urlDatabase[shortString].longURL = req.body.longURL;
@@ -311,20 +311,48 @@ app.post("/urls", (req, res) => {
 //else sends unauthorized message
 app.post("/urls/:shortURL/delete", (req, res) => {
   let userID = req.session.user_id;
-  if (userID === urlDatabase[req.params.shortURL].userIDforLink) {
-    delete urlDatabase[req.params.shortURL];
-    res.redirect('/urls');
+  const user = users[userID];
+  if (user) {
+    if (userID === urlDatabase[req.params.shortURL].userIDforLink) {
+      delete urlDatabase[req.params.shortURL];
+      res.redirect('/urls');
+    } else {
+      res.end("You are not authorized to delete this link\n");
+    }
   } else {
-    res.end("You are not authorized to delete this link\n");
+    let templateVars = {
+      error: "You are not logged in, please log in first.",
+      users: { userID: undefined },
+      user: undefined,
+      page: req.url,
+      showLogIn: true,
+      showCreateURL: false
+    }
+    res.render("error", templateVars);
   }
-  console.log(urlDatabase);
 });
 
-//TO UPDATE!!!!
 app.post("/urls/:shortURL", (req, res) => {
-  urlDatabase[req.params.shortURL].longURL = req.body.longURL;
-  console.log(urlDatabase);
-  res.redirect('/urls');
+  let userID = req.session.user_id;
+  const user = users[userID];
+  if (user) {
+    if (userID === urlDatabase[req.params.shortURL].userIDforLink) {
+      urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+      res.redirect('/urls');
+    } else {
+      res.end("You are not authorized to delete this link\n");
+    }
+  } else {
+    let templateVars = {
+      error: "You are not logged in, please log in first.",
+      users: { userID: undefined },
+      user: undefined,
+      page: req.url,
+      showLogIn: true,
+      showCreateURL: false
+    }
+    res.render("error", templateVars);
+  }
 });
 
 // Logs in user after validating they exist and their password matches db record
