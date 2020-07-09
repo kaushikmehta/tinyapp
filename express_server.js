@@ -270,7 +270,15 @@ app.get("/login", (req, res) => {
 
 // all other unknown/not-found pages show 404 error
 app.get('*', function (req, res) {
-  res.send("404 - Page not found. Try Again with a different page", 404);
+  let templateVars = {
+    error: "Are you sure you have the right address?",
+    user: undefined,
+    page: req.url,
+    showLogIn: false,
+    showCreateURL: false
+  }
+  res.render("error", templateVars);
+  // res.send("404 - Page not found. Try Again with a different page", 404);
 });
 
 // POST REQUESTS
@@ -278,8 +286,7 @@ app.get('*', function (req, res) {
 // adds new short url in db with longurl and corresponding user id
 app.post("/urls", (req, res) => {
   const userID = req.session.user_id;
-  if (userID !== undefined) {
-
+  if (users[userID]) {
     const shortString = generateRandomString();
     urlDatabase[shortString] = {};
     urlDatabase[shortString].longURL = req.body.longURL;
