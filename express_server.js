@@ -226,29 +226,40 @@ app.get("/u/:shortURL", (req, res) => {
 
 //route for new user registration
 app.get("/register", (req, res) => {
-  let page = req.url;
-  let templateVars = {
-    urls: urlDatabase,
-    userID: req.cookies["user_id"],
-    users: users,
-    page: page
-  };
-  res.render("register", templateVars);
+  const cookieUserID = req.cookies["user_id"];
+
+  if (cookieUserID !== undefined) {
+    res.redirect("/urls");
+  } else {
+    let page = req.url;
+    let templateVars = {
+      urls: urlDatabase,
+      userID: undefined,
+      users: users,
+      page: page
+    };
+    res.render("register", templateVars);
+  }
 });
 
 
 // route for login page
 app.get("/login", (req, res) => {
-  let page = req.url;
-  let templateVars = {
-    urls: urlDatabase,
-    userID: req.cookies["user_id"],
-    users: users,
-    page: page
-  };
-  res.render("login", templateVars);
-});
+  const cookieUserID = req.cookies["user_id"];
 
+  if (cookieUserID !== undefined) {
+    res.redirect("/urls");
+  } else {
+    let page = req.url;
+    let templateVars = {
+      urls: urlDatabase,
+      userID: req.cookies["user_id"],
+      users: users,
+      page: page
+    };
+    res.render("login", templateVars);
+  }
+});
 
 // all other unknown/not-found pages show 404 error
 app.get('*', function (req, res) {
