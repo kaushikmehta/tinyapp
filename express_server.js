@@ -120,16 +120,13 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   let userID = req.session.user_id;
 
-  if (userID) {
+  if (users[userID]) {
     let templateVars = {
       urls: findURLSByUser(userID),
       user: users[userID],
       // users: users,
       page: req.url
     };
-
-    console.log("UID", templateVars.userID)
-    console.log("TEMPURLS:", templateVars.urls)
     res.render("urls_index", templateVars);
   } else {
     let templateVars = {
@@ -218,16 +215,12 @@ app.get("/u/:shortURL", (req, res) => {
   const shorturl = req.params.shortURL;
   const userID = req.session.user_id;
 
-  // if user logged in
-  if (userID !== undefined) {
-    //if logged in but no short url
-    if (urlDatabase[shorturl] !== undefined) { // redirect to long url
-      const longURL = urlDatabase[shorturl].longURL;
-      res.redirect(longURL);
+    if (urlDatabase[shorturl]) { 
+      const longurl = urlDatabase[shorturl].longURL;
+      res.redirect(longurl); // if url exists redirect to long url
     } else { // show no url page
       let templateVars = {
         error: "That Short Link does not exist, you can create one below",
-        // users: users,
         user: users[userID],
         page: req.url,
         showLogIn: false,
@@ -235,18 +228,6 @@ app.get("/u/:shortURL", (req, res) => {
       }
       res.render("error", templateVars);
     }
-  } else { // show please log in page
-    let templateVars = {
-      error: "You are not logged in, please log in first.",
-      // users: { userID: undefined },
-      user: undefined,
-      page: req.url,
-      showLogIn: true,
-      showCreateURL: false
-    }
-    res.render("error", templateVars);
-  }
-
 });
 
 
