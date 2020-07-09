@@ -4,8 +4,14 @@ const app = express();
 
 const bcrypt = require('bcrypt');
 
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+var cookieSession = require('cookie-session')
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}))
+
+// const cookieParser = require('cookie-parser');
+// app.use(cookieParser());
 
 const bodyParser = require("body-parser");
 const e = require("express");
@@ -23,7 +29,7 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple"
+    password: "$2y$10$wO4dTKIe4vPMImmWtKh.8e5d9NFKjnuIHfFQWklZboqaMFPS8LHR2"
   },
   "user2RandomID": {
     id: "user2RandomID",
@@ -84,15 +90,18 @@ const findURLSByUser = (userCookieID) => {
 //redirects to login if no user logged in
 //redirects user logged in to urls index
 app.get("/", (req, res) => {
+  let userID = req.session.user_id;
   let templateVars = {
-    userID: req.cookies["user_id"],
-    users: users,
+    user: users[userID],
+    // users: users,
     page: req.url
   }
+  console.log("UID:", templateVars.userID);
+
   if (templateVars.userID === undefined) {
-    res.render("login", templateVars);
+    res.redirect("/login");
   } else {
-    res.render("urls_new", templateVars);
+    res.redirect("/urls/new");
   }
 });
 
@@ -109,22 +118,24 @@ app.get("/urls.json", (req, res) => {
 //route for /urls
 //renders calls urls_index page
 app.get("/urls", (req, res) => {
-  const userCookieID = req.cookies["user_id"];
+  let userID = req.session.user_id;
 
-  if (userCookieID) {
+  if (userID) {
     let templateVars = {
-      urls: findURLSByUser(userCookieID),
-      userID: req.cookies["user_id"],
-      users: users,
+      urls: findURLSByUser(userID),
+      user: users[userID],
+      // users: users,
       page: req.url
     };
-    // console.log("TEMPURLS:", templateVars.urls)
+
+    console.log("UID", templateVars.userID)
+    console.log("TEMPURLS:", templateVars.urls)
     res.render("urls_index", templateVars);
   } else {
     let templateVars = {
       error: "You are not logged in, please log in first.",
-      users: { userID: undefined },
-      userID: undefined,
+      // users: { userID: undefined },
+      user: undefined,
       page: req.url,
       showLogIn: true,
       showCreateURL: false
@@ -138,11 +149,11 @@ app.get("/urls", (req, res) => {
 // else renders create new url page
 app.get("/urls/new", (req, res) => {
   let templateVars = {
-    userID: req.cookies["user_id"],
-    users: users,
+    user: users[req.session.user_id],
+    // users: users,
     page: req.url
   }
-  if (templateVars.userID === undefined) {
+  if (!templateVars.userID) {
     res.render("login", templateVars);
   } else {
     res.render("urls_new", templateVars);
@@ -152,25 +163,25 @@ app.get("/urls/new", (req, res) => {
 //individual post page for short urls
 app.get("/urls/:shortURL", (req, res) => {
   const shorturl = req.params.shortURL;
-
+  const userID = req.session.user_id;
   // if user logged in
-  if (req.cookies["user_id"] !== undefined) {
+  if (userID !== undefined) {
     //if logged in but no short url
     if (urlDatabase[shorturl] !== undefined) { // show url page
       const longurl = urlDatabase[shorturl].longURL
       let templateVars = {
         shortURL: shorturl,
         longURL: longurl,
-        userID: req.cookies["user_id"],
-        users: users,
+        user: users[userID],
+        // users: users,
         page: req.url
       };
       res.render("urls_show", templateVars);
     } else { // show no url page
       let templateVars = {
         error: "That Short Link does not exist, you can create one below",
-        users: users,
-        userID: req.cookies["user_id"],
+        // users: users,
+        user: users[userID],
         page: req.url,
         showLogIn: false,
         showCreateURL: true
@@ -181,7 +192,7 @@ app.get("/urls/:shortURL", (req, res) => {
     let templateVars = {
       error: "You are not logged in, please log in first.",
       users: { userID: undefined },
-      userID: undefined,
+      user: undefined,
       page: req.url,
       showLogIn: false,
       showCreateURL: true
@@ -193,19 +204,20 @@ app.get("/urls/:shortURL", (req, res) => {
 // redirect link for anyone to access through shorturl
 
 app.get("/u/:shortURL", (req, res) => {
-
   const shorturl = req.params.shortURL;
+  const userID = req.session.user_id;
+
   // if user logged in
-  if (req.cookies["user_id"] !== undefined) {
+  if (userID !== undefined) {
     //if logged in but no short url
     if (urlDatabase[shorturl] !== undefined) { // redirect to long url
-      const longURL = urlDatabase[req.params.shortURL].longURL;
+      const longURL = urlDatabase[shorturl].longURL;
       res.redirect(longURL);
     } else { // show no url page
       let templateVars = {
         error: "That Short Link does not exist, you can create one below",
-        users: users,
-        userID: req.cookies["user_id"],
+        // users: users,
+        user: users[userID],
         page: req.url,
         showLogIn: false,
         showCreateURL: true
@@ -215,8 +227,8 @@ app.get("/u/:shortURL", (req, res) => {
   } else { // show please log in page
     let templateVars = {
       error: "You are not logged in, please log in first.",
-      users: { userID: undefined },
-      userID: undefined,
+      // users: { userID: undefined },
+      user: undefined,
       page: req.url,
       showLogIn: true,
       showCreateURL: false
@@ -229,16 +241,16 @@ app.get("/u/:shortURL", (req, res) => {
 
 //route for new user registration
 app.get("/register", (req, res) => {
-  const cookieUserID = req.cookies["user_id"];
+  const user = users[req.session.user_id];
 
-  if (cookieUserID !== undefined) {
+  if (user) {
     res.redirect("/urls");
   } else {
     let page = req.url;
     let templateVars = {
       urls: urlDatabase,
-      userID: undefined,
-      users: users,
+      user: undefined,
+      // users: users,
       page: page
     };
     res.render("register", templateVars);
@@ -248,16 +260,16 @@ app.get("/register", (req, res) => {
 
 // route for login page
 app.get("/login", (req, res) => {
-  const cookieUserID = req.cookies["user_id"];
+  const user = users[req.session.user_id];
 
-  if (cookieUserID !== undefined) {
+  if (user) {
     res.redirect("/urls");
   } else {
     let page = req.url;
     let templateVars = {
       urls: urlDatabase,
-      userID: req.cookies["user_id"],
-      users: users,
+      user: user,
+      // users: users,
       page: page
     };
     res.render("login", templateVars);
@@ -273,20 +285,20 @@ app.get('*', function (req, res) {
 
 // adds new short url in db with longurl and corresponding user id
 app.post("/urls", (req, res) => {
-  const cookieUserID = req.cookies["user_id"];
-  if (cookieUserID !== undefined) {
+  const userID = req.session.user_id;
+  if (userID !== undefined) {
     
     const shortString = generateRandomString();
     urlDatabase[shortString] = {};
     urlDatabase[shortString].longURL = req.body.longURL;
-    urlDatabase[shortString].userIDforLink = req.cookies["user_id"];
-    console.log(urlDatabase);
+    urlDatabase[shortString].userIDforLink = userID;
+    // console.log(urlDatabase);
     res.redirect(`/urls/${shortString}`);
   } else {
     let templateVars = {
       error: "You are not logged in, please log in first.",
       users: { userID: undefined },
-      userID: undefined,
+      user: undefined,
       page: req.url,
       showLogIn: true,
       showCreateURL: false
@@ -298,7 +310,7 @@ app.post("/urls", (req, res) => {
 // deletes shorturl object from db if request is sent by user that created it
 //else sends unauthorized message
 app.post("/urls/:shortURL/delete", (req, res) => {
-  let userID = req.cookies["user_id"];
+  let userID = req.session.user_id;
   if (userID === urlDatabase[req.params.shortURL].userIDforLink) {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
@@ -320,22 +332,23 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const checkUser = findUser(email);
+  // let userID = req.session.user_id;
 
   if (email === "" || password === "") {
-    res.send(400, "Bad Request. You tried to submit a blank email or password, please fill in these fields and try again.");
+    res.status(40).send("Bad Request. You tried to submit a blank email or password, please fill in these fields and try again.");
   }
 
   if (checkUser) {
     const emailPasswordCheck = validatePassword(checkUser, email, password);
 
     if (emailPasswordCheck) {
-      res.cookie("user_id", checkUser.id);
+      // let userID = checkUser.id;
       res.redirect("/urls");
     } else {
-      res.send(403, "Bad Request. Your password does not match what we have, please try again.");
+      res.status(403).send("Bad Request. Your password does not match what we have, please try again.");
     }
   } else {
-    res.send(403, "Bad Request. This email doesn't exist in the database, please try again with a different email.");
+    res.status(403).send("Bad Request. This email doesn't exist in the database, please try again with a different email.");
   }
 
 });
@@ -359,25 +372,19 @@ app.post("/register", (req, res) => {
     newUser = registerNewUser(email, password);
   }
 
-  res.cookie("user_id", newUser.id);
+  req.session.user_id = newUser.id;
 
   res.redirect("/urls");
 });
 
 // clear cookies and redirects to url index page
 app.post("/logout", (req, res) => {
-  let userID = req.cookies["user_id"];
-
-  // for (let urls in urlDatabase) {
-  //   if(urls.userIDforLink === userID){
-  //     delete urlDatabase[urls];
-  //   }
-  // }
-  res.clearCookie('user_id');
+  req.session.user_id = null;
   res.redirect("/urls");
 });
 
 //starts serves on specified port and logs message to server console.
 app.listen(PORT, () => {
+  // req.session.user_id = "some value";
   console.log(`Example app listening on port ${PORT}`);
 });

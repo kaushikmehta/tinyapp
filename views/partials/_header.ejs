@@ -13,7 +13,7 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <% if (userID === undefined) { %>
+    <% if (!user) { %>
     <form class="form-inline" method="GET" action="/login">
       <div class="input-group mr-sm-2">
         <button type="submit" class="btn btn-primary btn-lg">Login</button>
@@ -28,7 +28,7 @@
     <form class="form-inline" method="POST" action="/logout">
       <div class="input-group mr-sm-20">
         <div class="input-group-prepend">
-          <div class="input-group-text">Logged In As: <%= users[userID].email%></div>
+          <div class="input-group-text">Logged In As: <%= user.email%></div>
         </div>
         <button type="submit" class="btn btn-danger">Logout</button>
       </div>
