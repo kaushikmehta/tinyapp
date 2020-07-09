@@ -52,14 +52,17 @@ const findUser = emailID => {
 // registers new user is database when called
 const registerNewUser = (email, password) => {
   const newUserID = generateRandomString();
-  const id = newUserID
+  const id = newUserID;
+  password = bcrypt.hashSync(password, 10);
   users[newUserID] = { id, email, password };
   return users[newUserID];
 }
 
 // validates user's email and password combination and return truthy/falsy
 const validatePassword = (userObj, email, passwordToCheck) => {
-  if (userObj.email === email && userObj.password === passwordToCheck) {
+  console.log("PWTC:", passwordToCheck);
+  console.log(userObj);
+  if (userObj.email === email && bcrypt.compareSync(passwordToCheck, userObj.password)) {
     return true;
   }
   return false;
@@ -69,13 +72,11 @@ const validatePassword = (userObj, email, passwordToCheck) => {
 const findURLSByUser = (userCookieID) => {
   let usersURLs = {};
   for (const url in urlDatabase) {
-    console.log("singe:", urlDatabase[url])
     if (urlDatabase[url].userIDforLink === userCookieID) {
       usersURLs[url] = urlDatabase[url];
       usersURLs[url].longURL = urlDatabase[url].longURL
     }
   }
-  console.log("obj:", usersURLs);
   return usersURLs;
 }
 
