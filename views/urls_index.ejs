@@ -26,9 +26,6 @@
         </tr>
       </thead>
       <tbody>
-        <% if (userID !== "") { %>
-        <% for(let url in urls) { %>
-        <% if (urls[url].userIDforLink === userID) { %>
         <tr>
           <td><%= url %></td>
           <td><%= urls[url].longURL %></td>
@@ -43,12 +40,6 @@
             </form>
           </td>
         </tr>
-        <!-- end of if url user id is the same-->
-        <% } %>
-        <!-- end of for urls in url database-->
-        <% } %>
-        <!-- end of if userID is not undefined-->
-        <% } %>
       </tbody>
     </table>
   </main>

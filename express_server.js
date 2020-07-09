@@ -32,7 +32,7 @@ const users = {
 
 // Helper Functions
 
-// generated random strings; used for new url and new user
+// generates random 6 character alphanumeric strings; used for new url and new user
 function generateRandomString() {
   return Math.random().toString(36).substring(2, 8);
 }
@@ -63,9 +63,34 @@ const validatePassword = (userObj, email, passwordToCheck) => {
   return false;
 }
 
+// finds urls associated with a given userID
+const findURLSByUser = (userCookieID) => {
+  let usersURLs = {};
+  for (const url in urlDatabase) {
+    console.log("singe:",urlDatabase[url])
+    if (urlDatabase[url].userIDforLink === userCookieID) {
+      usersURLs[url] = urlDatabase[url];
+      usersURLs[url].longURL = urlDatabase[url].longURL
+    }
+  }
+  console.log("obj:", usersURLs);
+  return usersURLs;
+}
 
+//route for /(homepage)
+//redirects to login if no user logged in
+//redirects user logged in to urls index
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  let templateVars = {
+    userID: req.cookies["user_id"],
+    users: users,
+    page: req.url
+  }
+  if (templateVars.userID === undefined) {
+    res.render("login", templateVars);
+  } else {
+    res.render("urls_new", templateVars);
+  }
 });
 
 app.get("/hello", (req, res) => {
@@ -76,16 +101,25 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+
+
 //route for /urls
 //renders calls urls_index page
 app.get("/urls", (req, res) => {
-  let templateVars = {
-    urls: urlDatabase,
-    userID: req.cookies["user_id"],
-    users: users,
-    page: req.url
-  };
-  res.render("urls_index", templateVars);
+  const userCookieID = req.cookies["user_id"];
+
+  if (userCookieID){
+    let templateVars = {
+      urls: findURLSByUser(userCookieID),
+      userID: req.cookies["user_id"],
+      users: users,
+      page: req.url
+    };
+    // console.log("TEMPURLS:", templateVars.urls)
+    res.render("urls_index", templateVars);
+  } else {
+    
+  }
 });
 
 //route for create new url page
@@ -167,7 +201,7 @@ app.post("/urls", (req, res) => {
 // deletes shorturl object from db if request is sent by user that created it
 //else sends unauthorized message
 app.post("/urls/:shortURL/delete", (req, res) => {
-  let userID = req.cookies["user_id"]
+  let userID = req.cookies["user_id"];
   if (userID === urlDatabase[req.params.shortURL].userIDforLink) {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls');
