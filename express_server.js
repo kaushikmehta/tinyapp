@@ -166,9 +166,9 @@ app.get("/urls/:shortURL", (req, res) => {
   const shorturl = req.params.shortURL;
   const userID = req.session.user_id;
   // if user logged in
-  if (userID !== undefined) {
+  if (users[userID]) {
     //if logged in but no short url
-    if (urlDatabase[shorturl] !== undefined) { // show url page
+    if (urlDatabase[shorturl] !== undefined && urlDatabase[shorturl].userIDforLink === userID) { // show url page
       const longurl = urlDatabase[shorturl].longURL
       let templateVars = {
         shortURL: shorturl,
@@ -178,6 +178,16 @@ app.get("/urls/:shortURL", (req, res) => {
         page: req.url
       };
       res.render("urls_show", templateVars);
+    } else if (urlDatabase[shorturl] !== undefined && urlDatabase[shorturl].userIDforLink !== userID) { // logged in but do not own url
+      let templateVars = {
+        error: "That link belongs to another user, you can create your own.",
+        // users: users,
+        user: users[userID],
+        page: req.url,
+        showLogIn: false,
+        showCreateURL: true
+      }
+      res.render("error", templateVars);
     } else { // show no url page
       let templateVars = {
         error: "That Short Link does not exist, you can create one below",
@@ -195,8 +205,8 @@ app.get("/urls/:shortURL", (req, res) => {
       users: { userID: undefined },
       user: undefined,
       page: req.url,
-      showLogIn: false,
-      showCreateURL: true
+      showLogIn: true,
+      showCreateURL: false
     }
     res.render("error", templateVars);
   }
