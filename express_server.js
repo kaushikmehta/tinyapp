@@ -118,7 +118,13 @@ app.get("/urls", (req, res) => {
     // console.log("TEMPURLS:", templateVars.urls)
     res.render("urls_index", templateVars);
   } else {
-    
+    let templateVars = {
+      error: "You are not logged in, please log in first.",
+      users: {userID: undefined},
+      userID: undefined,
+      page: req.url
+    }
+    res.render("error", templateVars);
   }
 });
 
