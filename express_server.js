@@ -266,14 +266,30 @@ app.get('*', function (req, res) {
   res.send("404 - Page not found. Try Again with a different page", 404);
 });
 
+// POST REQUESTS
+
 // adds new short url in db with longurl and corresponding user id
 app.post("/urls", (req, res) => {
-  const shortString = generateRandomString();
-  urlDatabase[shortString] = {};
-  urlDatabase[shortString].longURL = req.body.longURL;
-  urlDatabase[shortString].userIDforLink = req.cookies["user_id"];
-  console.log(urlDatabase);
-  res.redirect(`/urls/${shortString}`);
+  const cookieUserID = req.cookies["user_id"];
+  if (cookieUserID !== undefined) {
+    
+    const shortString = generateRandomString();
+    urlDatabase[shortString] = {};
+    urlDatabase[shortString].longURL = req.body.longURL;
+    urlDatabase[shortString].userIDforLink = req.cookies["user_id"];
+    console.log(urlDatabase);
+    res.redirect(`/urls/${shortString}`);
+  } else {
+    let templateVars = {
+      error: "You are not logged in, please log in first.",
+      users: { userID: undefined },
+      userID: undefined,
+      page: req.url,
+      showLogIn: true,
+      showCreateURL: false
+    }
+    res.render("error", templateVars);
+  }
 });
 
 // deletes shorturl object from db if request is sent by user that created it
