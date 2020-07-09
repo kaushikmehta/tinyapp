@@ -67,7 +67,7 @@ const validatePassword = (userObj, email, passwordToCheck) => {
 const findURLSByUser = (userCookieID) => {
   let usersURLs = {};
   for (const url in urlDatabase) {
-    console.log("singe:",urlDatabase[url])
+    console.log("singe:", urlDatabase[url])
     if (urlDatabase[url].userIDforLink === userCookieID) {
       usersURLs[url] = urlDatabase[url];
       usersURLs[url].longURL = urlDatabase[url].longURL
@@ -108,7 +108,7 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   const userCookieID = req.cookies["user_id"];
 
-  if (userCookieID){
+  if (userCookieID) {
     let templateVars = {
       urls: findURLSByUser(userCookieID),
       userID: req.cookies["user_id"],
@@ -120,9 +120,11 @@ app.get("/urls", (req, res) => {
   } else {
     let templateVars = {
       error: "You are not logged in, please log in first.",
-      users: {userID: undefined},
+      users: { userID: undefined },
       userID: undefined,
-      page: req.url
+      page: req.url,
+      showLogIn: true,
+      showCreateURL: false
     }
     res.render("error", templateVars);
   }
@@ -146,14 +148,43 @@ app.get("/urls/new", (req, res) => {
 
 //individual post page for short urls
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    userID: req.cookies["user_id"],
-    users: users,
-    page: req.url
-  };
-  res.render("urls_show", templateVars);
+  const shorturl = req.params.shortURL;
+
+  // if user logged in
+  if (req.cookies["user_id"] !== undefined) {
+    //if logged in but no short url
+    if (urlDatabase[shorturl] !== undefined) { // show url page
+      const longurl = urlDatabase[shorturl].longURL
+      let templateVars = {
+        shortURL: shorturl,
+        longURL: longurl,
+        userID: req.cookies["user_id"],
+        users: users,
+        page: req.url
+      };
+      res.render("urls_show", templateVars);
+    } else { // show no url page
+      let templateVars = {
+        error: "You are not logged in, please log in first.",
+        users: { userID: undefined },
+        userID: undefined,
+        page: req.url,
+        showLogIn: false,
+        showCreateURL: true
+      }
+      res.render("error", templateVars);
+    }
+  } else { // show please log in page
+    let templateVars = {
+      error: "That Short Link does not exist, you can create one below",
+      users: { userID: undefined },
+      userID: undefined,
+      page: req.url,
+      showLogIn: true,
+      showCreateURL: false
+    }
+    res.render("error", templateVars);
+  }
 });
 
 // redirect link for anyone to access through shorturl
@@ -276,7 +307,7 @@ app.post("/register", (req, res) => {
 // clear cookies and redirects to url index page
 app.post("/logout", (req, res) => {
   let userID = req.cookies["user_id"];
-  
+
   // for (let urls in urlDatabase) {
   //   if(urls.userIDforLink === userID){
   //     delete urlDatabase[urls];
