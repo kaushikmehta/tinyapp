@@ -148,12 +148,13 @@ app.get("/urls", (req, res) => {
 //redirects to login is no user logged in
 // else renders create new url page
 app.get("/urls/new", (req, res) => {
+  const userID = req.session.user_id;
   let templateVars = {
-    user: users[req.session.user_id],
+    user: users[userID],
     // users: users,
     page: req.url
   }
-  if (!templateVars.userID) {
+  if (!users[userID]) {
     res.render("login", templateVars);
   } else {
     res.render("urls_new", templateVars);
