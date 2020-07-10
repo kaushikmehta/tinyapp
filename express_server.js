@@ -183,6 +183,7 @@ app.get("/urls/:shortURL", (req, res) => {
         user: users[userID],
         page: req.url,
         showLogIn: false,
+        showRegister:false,
         showCreateURL: true
       }
       res.render("error", templateVars);
@@ -278,6 +279,7 @@ app.get('*', function (req, res) {
     user: undefined,
     page: req.url,
     showLogIn: false,
+    showRegister:false,
     showCreateURL: false
   }
   res.render("error", templateVars);
@@ -360,6 +362,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
         user: user,
         page: req.url,
         showLogIn: false,
+        showRegister:false,
         showCreateURL: true
       }
       res.render("error", templateVars);
