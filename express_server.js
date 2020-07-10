@@ -433,16 +433,15 @@ app.post("/register", (req, res) => {
   if (checkUserExists) {
 
     let templateVars = {
-      error: "You tried to submit a blank email or password, please fill in these fields and try again.",
+      error: "A user with this email already exists, please try to register again with a different email",
       users: { userID: undefined },
       user: undefined,
       page: req.url,
-      showLogIn: true,
+      showLogIn: false,
       showRegister: true,
       showCreateURL: false
     }
     res.status(400).render("error", templateVars);
-    res.send(400, "Bad Request. A user with this email already exists, please try again with a different email");
   } else {
     newUser = registerNewUser(email, password, users);
   }
