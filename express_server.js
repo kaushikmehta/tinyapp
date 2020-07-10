@@ -135,6 +135,7 @@ app.get("/urls", (req, res) => {
       user: undefined,
       page: req.url,
       showLogIn: true,
+      showRegister:true,
       showCreateURL: false
     }
     res.render("error", templateVars);
@@ -203,6 +204,7 @@ app.get("/urls/:shortURL", (req, res) => {
       user: undefined,
       page: req.url,
       showLogIn: true,
+      showRegister:true,
       showCreateURL: false
     }
     res.render("error", templateVars);
@@ -224,6 +226,7 @@ app.get("/u/:shortURL", (req, res) => {
         user: users[userID],
         page: req.url,
         showLogIn: false,
+        showRegister: false,
         showCreateURL: true
       }
       res.render("error", templateVars);
@@ -300,6 +303,41 @@ app.post("/urls", (req, res) => {
       user: undefined,
       page: req.url,
       showLogIn: true,
+      showRegister: true,
+      showCreateURL: false
+    }
+    res.render("error", templateVars);
+  }
+});
+
+
+app.post("/urls/:shortURL", (req, res) => {
+  let userID = req.session.user_id;
+  const user = users[userID];
+  if (user) {
+    if (userID === urlDatabase[req.params.shortURL].userIDforLink) {
+      urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+      res.redirect('/urls');
+    } else {
+      let templateVars = {
+        error: "You are not authorized to edit this link",
+        users: { userID: undefined },
+        user: user,
+        page: req.url,
+        showLogIn: false,
+        showRegister:false,
+        showCreateURL: true
+      }
+      res.render("error", templateVars);
+    }
+  } else {
+    let templateVars = {
+      error: "You are not logged in, please log in first.",
+      users: { userID: undefined },
+      user: undefined,
+      page: req.url,
+      showLogIn: true,
+      showRegister: true,
       showCreateURL: false
     }
     res.render("error", templateVars);
@@ -316,7 +354,15 @@ app.post("/urls/:shortURL/delete", (req, res) => {
       delete urlDatabase[req.params.shortURL];
       res.redirect('/urls');
     } else {
-      res.end("You are not authorized to delete this link\n");
+      let templateVars = {
+        error: "You are not authorized to delete this link",
+        users: { userID: undefined },
+        user: user,
+        page: req.url,
+        showLogIn: false,
+        showCreateURL: true
+      }
+      res.render("error", templateVars);
     }
   } else {
     let templateVars = {
@@ -325,29 +371,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
       user: undefined,
       page: req.url,
       showLogIn: true,
-      showCreateURL: false
-    }
-    res.render("error", templateVars);
-  }
-});
-
-app.post("/urls/:shortURL", (req, res) => {
-  let userID = req.session.user_id;
-  const user = users[userID];
-  if (user) {
-    if (userID === urlDatabase[req.params.shortURL].userIDforLink) {
-      urlDatabase[req.params.shortURL].longURL = req.body.longURL;
-      res.redirect('/urls');
-    } else {
-      res.end("You are not authorized to delete this link\n");
-    }
-  } else {
-    let templateVars = {
-      error: "You are not logged in, please log in first.",
-      users: { userID: undefined },
-      user: undefined,
-      page: req.url,
-      showLogIn: true,
+      showRegister: true,
       showCreateURL: false
     }
     res.render("error", templateVars);
@@ -362,7 +386,16 @@ app.post("/login", (req, res) => {
   // let userID = req.session.user_id;
 
   if (email === "" || password === "") {
-    res.status(40).send("Bad Request. You tried to submit a blank email or password, please fill in these fields and try again.");
+    let templateVars = {
+      error: "You tried to submit a blank email or password, please fill in these fields and try again.",
+      users: { userID: undefined },
+      user: undefined,
+      page: req.url,
+      showLogIn: true,
+      showRegister: true,
+      showCreateURL: false
+    }
+    res.status(403).render("error", templateVars);
   }
 
   if (checkUser) {
@@ -372,12 +405,29 @@ app.post("/login", (req, res) => {
       // let userID = checkUser.id;
       res.redirect("/urls");
     } else {
-      res.status(403).send("Bad Request. Your password does not match what we have, please try again.");
+      let templateVars = {
+        error: "Your password does not match what we have, please try again.",
+        users: { userID: undefined },
+        user: undefined,
+        page: req.url,
+        showLogIn: true,
+        showRegister: true,
+        showCreateURL: false
+      }
+      res.status(403).render("error", templateVars);
     }
   } else {
-    res.status(403).send("Bad Request. This email doesn't exist in the database, please try again with a different email.");
+    let templateVars = {
+      error: "This email doesn't exist in the database, please try again with a different email.",
+      users: { userID: undefined },
+      user: undefined,
+      page: req.url,
+      showLogIn: true,
+      showRegister: true,
+      showCreateURL: false
+    }
+    res.status(403).render("error", templateVars);
   }
-
 });
 
 
@@ -390,10 +440,30 @@ app.post("/register", (req, res) => {
   let newUser = "not yet registered";
 
   if (email === "" || password === "") {
-    res.send(400, "Bad Request. You tried to submit a blank email or password, please fill in these fields and try again.");
+    let templateVars = {
+      error: "You tried to submit a blank email or password, please fill in these fields and try again.",
+      users: { userID: undefined },
+      user: undefined,
+      page: req.url,
+      showLogIn: true,
+      showRegister: true,
+      showCreateURL: false
+    }
+    res.status(400).render("error", templateVars);
   }
 
   if (checkUserExists) {
+
+    let templateVars = {
+      error: "You tried to submit a blank email or password, please fill in these fields and try again.",
+      users: { userID: undefined },
+      user: undefined,
+      page: req.url,
+      showLogIn: true,
+      showRegister: true,
+      showCreateURL: false
+    }
+    res.status(400).render("error", templateVars);
     res.send(400, "Bad Request. A user with this email already exists, please try again with a different email");
   } else {
     newUser = registerNewUser(email, password);
