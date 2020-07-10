@@ -7,8 +7,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 !["User Registration"](docs/registration-page.png)
 !["Login"](docs/login-page.png)
 !["View all URLs belonging to user"](docs/urls_page.png)
-!["View and Edit Single URLs"](docs/singleURL-page.png)
-!["View and Edit Single URLs"](docs/singleURL-page.png)
+!["View and Edit Single URLs"](docs/singleUrl-page.png)
 
 ## Dependencies
 
