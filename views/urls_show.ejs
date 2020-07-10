@@ -17,9 +17,9 @@
   <div class="card text-center">
     <div class="card-header"></div>
     <div class="card-body">
-      <h5 class="card-title">TinyURL for: <%= longURL %></h5>
+      <h5 class="card-title col-sm-4 offset-4 text-truncate">TinyURL for: <%= longURL %></h5>
       <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
-      <p class="card-text">Long URL: <a href="<%= longURL %>"><%= longURL %></a></p>
+      <p class="card-text col-sm-4 offset-4 text-truncate">Long URL: <a href="<%= longURL %>"><%= longURL %></a></p>
       <p class="card-text">This link was created or edited on: <%= url.dateCreated%></p>
       <p class="card-text">and has had <%= url.allVisits %> visit(s)</p>
       <% if (url.uniqueVisits > 0 ) { %><p class="card-text">with <%= url.uniqueVisits%> of them being from unique clients</p> <% } %>
