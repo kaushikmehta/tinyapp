@@ -28,7 +28,7 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "$2y$10$wO4dTKIe4vPMImmWtKh.8e5d9NFKjnuIHfFQWklZboqaMFPS8LHR2"
+    password: "purple"
   },
   "user2RandomID": {
     id: "user2RandomID",
