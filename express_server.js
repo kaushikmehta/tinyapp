@@ -41,9 +41,15 @@ const users = {
 // Helper Functions
 
 // generates random 6 character alphanumeric strings; used for new url and new user
-function generateRandomString() {
+const generateRandomString = () => {
   return Math.random().toString(36).substring(2, 8);
 }
+
+const generateFormattedDate = () => {
+  const date = new Date();
+  return (date.toISOString().split("T")[0]);
+}
+
 
 // checks to see if user exists and returns the user object if found or falsy value
 const findUser = emailID => {
@@ -105,9 +111,6 @@ app.get("/", (req, res) => {
   }
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
@@ -135,7 +138,7 @@ app.get("/urls", (req, res) => {
       user: undefined,
       page: req.url,
       showLogIn: true,
-      showRegister:true,
+      showRegister: true,
       showCreateURL: false
     }
     res.render("error", templateVars);
@@ -167,11 +170,16 @@ app.get("/urls/:shortURL", (req, res) => {
   if (users[userID]) {
     //if logged in but no short url
     if (urlDatabase[shorturl] !== undefined && urlDatabase[shorturl].userIDforLink === userID) { // show url page
+      // urlDatabase[shorturl].allVisits += 1;
+      // if(!req.session.uniqueVisits) {
+      //   urlDatabase[shorturl].uniqueVisits += 1;
+      // }
       const longurl = urlDatabase[shorturl].longURL
       let templateVars = {
         shortURL: shorturl,
         longURL: longurl,
         user: users[userID],
+        url: urlDatabase[shorturl],
         // users: users,
         page: req.url
       };
@@ -183,7 +191,7 @@ app.get("/urls/:shortURL", (req, res) => {
         user: users[userID],
         page: req.url,
         showLogIn: false,
-        showRegister:false,
+        showRegister: false,
         showCreateURL: true
       }
       res.render("error", templateVars);
@@ -205,7 +213,7 @@ app.get("/urls/:shortURL", (req, res) => {
       user: undefined,
       page: req.url,
       showLogIn: true,
-      showRegister:true,
+      showRegister: true,
       showCreateURL: false
     }
     res.render("error", templateVars);
@@ -218,20 +226,24 @@ app.get("/u/:shortURL", (req, res) => {
   const shorturl = req.params.shortURL;
   const userID = req.session.user_id;
 
-    if (urlDatabase[shorturl]) { 
-      const longurl = urlDatabase[shorturl].longURL;
-      res.redirect(longurl); // if url exists redirect to long url
-    } else { // show no url page
-      let templateVars = {
-        error: "That Short Link does not exist, you can create one below",
-        user: users[userID],
-        page: req.url,
-        showLogIn: false,
-        showRegister: false,
-        showCreateURL: true
-      }
-      res.render("error", templateVars);
+  if (urlDatabase[shorturl]) {
+    const longurl = urlDatabase[shorturl].longURL;
+    if (req.session['uniqueVisits'] === undefined) {
+      urlDatabase[shorturl].uniqueVisits += 1;
     }
+    urlDatabase[shorturl].allVisits += 1;
+    res.redirect(longurl); // if url exists redirect to long url
+  } else { // show no url page
+    let templateVars = {
+      error: "That Short Link does not exist, you can create one below",
+      user: users[userID],
+      page: req.url,
+      showLogIn: false,
+      showRegister: false,
+      showCreateURL: true
+    }
+    res.render("error", templateVars);
+  }
 });
 
 
@@ -279,7 +291,7 @@ app.get('*', function (req, res) {
     user: undefined,
     page: req.url,
     showLogIn: false,
-    showRegister:false,
+    showRegister: false,
     showCreateURL: false
   }
   res.render("error", templateVars);
@@ -296,6 +308,10 @@ app.post("/urls", (req, res) => {
     urlDatabase[shortString] = {};
     urlDatabase[shortString].longURL = req.body.longURL;
     urlDatabase[shortString].userIDforLink = userID;
+    urlDatabase[shortString].dateCreated = generateFormattedDate();
+    req.session.uniqueVisits = "anything";
+    urlDatabase[shortString].uniqueVisits = 0;
+    urlDatabase[shortString].allVisits = 0;
     // console.log(urlDatabase);
     res.redirect(`/urls/${shortString}`);
   } else {
@@ -319,6 +335,11 @@ app.post("/urls/:shortURL", (req, res) => {
   if (user) {
     if (userID === urlDatabase[req.params.shortURL].userIDforLink) {
       urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+      urlDatabase[req.params.shortURL].dateCreated = generateFormattedDate();
+      urlDatabase[req.params.shortURL].uniqueVisits = 0;
+      urlDatabase[req.params.shortURL].allVisits = 0;
+
+      req.session.uniqueVisits = null;
       res.redirect('/urls');
     } else {
       let templateVars = {
@@ -327,7 +348,7 @@ app.post("/urls/:shortURL", (req, res) => {
         user: user,
         page: req.url,
         showLogIn: false,
-        showRegister:false,
+        showRegister: false,
         showCreateURL: true
       }
       res.render("error", templateVars);
@@ -362,7 +383,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
         user: user,
         page: req.url,
         showLogIn: false,
-        showRegister:false,
+        showRegister: false,
         showCreateURL: true
       }
       res.render("error", templateVars);
