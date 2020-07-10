@@ -404,7 +404,8 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const checkUser = findUser(email);
-  // let userID = req.session.user_id;
+  
+  let userID = req.session.user_id;
 
   if (email === "" || password === "") {
     let templateVars = {
@@ -424,6 +425,9 @@ app.post("/login", (req, res) => {
 
     if (emailPasswordCheck) {
       // let userID = checkUser.id;
+      console.log(users);
+      req.session.user_id = checkUser.id;
+
       res.redirect("/urls");
     } else {
       let templateVars = {
