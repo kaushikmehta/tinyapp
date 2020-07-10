@@ -10,9 +10,6 @@ app.use(cookieSession({
   keys: ['key1', 'key2']
 }))
 
-// const cookieParser = require('cookie-parser');
-// app.use(cookieParser());
-
 const bodyParser = require("body-parser");
 const e = require("express");
 app.use(bodyParser.urlencoded({ extended: true }));
