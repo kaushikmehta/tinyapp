@@ -35,7 +35,7 @@
           <tr>
             <% for (url in urls) { %>
             <td><%= url %></td>
-            <td><%= urls[url].longURL %></td>
+            <td class="col-sm-2 text-truncate"><%= urls[url].longURL %></td>
             <td><%= urls[url].dateCreated%></td>
             <td><%= urls[url].uniqueVisits%></td>
             <td><%= urls[url].allVisits%></td>

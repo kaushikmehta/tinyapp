@@ -21,10 +21,11 @@ describe('getUserByEmail', function() {
     const expectedOutput = "userRandomID";
     assert.equal(user.id, expectedOutput);
   });
-  it('should return a user with valid email', function() {
+  it('should return undefined when valid email', function() {
     const user = findUser("whodis@whatmail.com", users)
     const expectedOutput = undefined;
     assert.equal(user.id, expectedOutput);
   });
+
 
 });
